@@ -1,0 +1,2 @@
+# Optional: only needed if you set ANTHROPIC_API_KEY to let Claude write owner summaries and one draft variant per play.
+anthropic>=0.40,<1

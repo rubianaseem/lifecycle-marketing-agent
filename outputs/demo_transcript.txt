@@ -1,0 +1,31 @@
+1. Run on the sample snapshot (offline rules and templates, as of 2026-11-08 12:00 UTC)
+  contacts 34 | proposed 24 | held for consent 3 | deferred by caps 2 | review 5 | quarantined text 2 | import rows 24
+  plays proposed: CUSTOMER_CHECK_IN 1, EXPAND 1, MQL_SLA_ALERT 2, NURTURE_EDUCATION 1, NURTURE_WELCOME 1, ONBOARD 1, OWNER_ALERT 2, RE_ENGAGE 2, SALES_HAND_RAISE 3, SQL_ASSIST 1, SUNSET 1, SUPPRESS 8
+
+2. Approval gate (SIMULATED approvals on synthetic data)
+  release import before any approval                   REFUSED  hubspot_import_proposed.csv has not been approved
+  content reviewer approves the import                 REFUSED  approver 'content-reviewer' may not approve hubspot_import_proposed.csv
+  approve with a 12-character hash prefix              REFUSED  approval needs the full 64-character SHA-256 shown by `agent.py show`
+  approve with the hash of a different file            REFUSED  hash does not match the file on disk; review the current file and use its hash
+  Rubia approves the import with its full hash         ALLOWED
+  release the approved import                          ALLOWED  -> released/hubspot_import_proposed.csv
+  release list criteria edited after approval          REFUSED  file changed after approval (hash mismatch); approval is void
+  release the import 4 days later (expired)            REFUSED  approval expired; review and approve again
+
+3. Re-run the next day on a fresh export (idempotency)
+  the new export adds one event: contact 1033 requests a demo
+  plays already proposed yesterday, skipped: 23 | new import rows: 1 (SALES_HAND_RAISE 1)
+
+4. Crash after planning, then resume
+  first attempt: simulated crash after step 'plan'
+  second attempt: resumed_and_completed; import identical to the uninterrupted run: True
+  third attempt with the same inputs: already_complete (nothing rewritten)
+
+5. Stale snapshot (the same export used 40 hours later)
+  run refused: snapshot age 44.5 hours exceeds 24; re-export or pass --allow-stale (outputs will be unapprovable)
+  approve import from a --allow-stale run              REFUSED  run was built on a stale snapshot; re-export from HubSpot and re-run
+
+6. Audit trail
+  run audit log: intact (ok (12 records))
+  decision trace: intact (ok (34 records))
+  decision trace with one SUPPRESS edited to NURTURE: BROKEN (line 4: hash mismatch)

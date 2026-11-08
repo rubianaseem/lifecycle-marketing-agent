@@ -1,0 +1,7 @@
+{
+  "_note": "Who may approve which artifact. Approval always needs the full SHA-256 of the file the person reviewed.",
+  "approvers": {
+    "rubia": {"name": "Rubia Naseem", "artifacts": ["hubspot_import_proposed.csv", "list_criteria.json", "nurture_drafts.md"]},
+    "content-reviewer": {"name": "Content reviewer (example)", "artifacts": ["nurture_drafts.md"]}
+  }
+}

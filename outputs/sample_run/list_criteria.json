@@ -1,0 +1,477 @@
+{
+  "run_id": "8efc13122956",
+  "policy_version": "2026-11-08.1",
+  "custom_properties_needed": [
+    {
+      "name": "lifecycle_next_play",
+      "type": "dropdown",
+      "options": [
+        "CUSTOMER_CHECK_IN",
+        "EXPAND",
+        "MQL_SLA_ALERT",
+        "NURTURE_EDUCATION",
+        "NURTURE_WELCOME",
+        "ONBOARD",
+        "OWNER_ALERT",
+        "RE_ENGAGE",
+        "SALES_HAND_RAISE",
+        "SQL_ASSIST",
+        "SUNSET",
+        "SUPPRESS"
+      ]
+    },
+    {
+      "name": "lifecycle_play_reason",
+      "type": "single-line text"
+    },
+    {
+      "name": "lifecycle_play_run_id",
+      "type": "single-line text"
+    }
+  ],
+  "segments": [
+    {
+      "name": "Lifecycle agent - Nurture Welcome",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 1,
+      "email_play": true,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "NURTURE_WELCOME"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        },
+        {
+          "property": "lifecyclestage",
+          "operator": "is any of",
+          "value": [
+            "subscriber",
+            "lead"
+          ]
+        },
+        {
+          "association": "deal",
+          "property": "dealstage",
+          "operator": "none of open stages",
+          "label": "No associated deal in an open stage"
+        },
+        {
+          "property": "hs_marketable_status",
+          "operator": "is",
+          "value": "Marketing contact"
+        },
+        {
+          "property": "hs_email_optout",
+          "operator": "is not",
+          "value": "true",
+          "label": "Unsubscribed from all email"
+        },
+        {
+          "property": "hs_email_hard_bounce_reason_enum",
+          "operator": "is unknown",
+          "label": "Hard bounce reason"
+        },
+        {
+          "segment_membership": "Lifecycle agent - suppress",
+          "operator": "is not member"
+        },
+        {
+          "segment_membership": "Global suppression (your existing list)",
+          "operator": "is not member"
+        }
+      ],
+      "how_to_use": "Enrol in the welcome sequence or workflow (3 emails over 2 weeks)."
+    },
+    {
+      "name": "Lifecycle agent - Nurture Education",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 1,
+      "email_play": true,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "NURTURE_EDUCATION"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        },
+        {
+          "property": "lifecyclestage",
+          "operator": "is any of",
+          "value": [
+            "subscriber",
+            "lead",
+            "marketingqualifiedlead"
+          ]
+        },
+        {
+          "association": "deal",
+          "property": "dealstage",
+          "operator": "none of open stages",
+          "label": "No associated deal in an open stage"
+        },
+        {
+          "property": "hs_marketable_status",
+          "operator": "is",
+          "value": "Marketing contact"
+        },
+        {
+          "property": "hs_email_optout",
+          "operator": "is not",
+          "value": "true",
+          "label": "Unsubscribed from all email"
+        },
+        {
+          "property": "hs_email_hard_bounce_reason_enum",
+          "operator": "is unknown",
+          "label": "Hard bounce reason"
+        },
+        {
+          "segment_membership": "Lifecycle agent - suppress",
+          "operator": "is not member"
+        },
+        {
+          "segment_membership": "Global suppression (your existing list)",
+          "operator": "is not member"
+        }
+      ],
+      "how_to_use": "Enrol in the education nurture."
+    },
+    {
+      "name": "Lifecycle agent - Re Engage",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 2,
+      "email_play": true,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "RE_ENGAGE"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        },
+        {
+          "property": "lifecyclestage",
+          "operator": "is any of",
+          "value": [
+            "subscriber",
+            "lead",
+            "marketingqualifiedlead",
+            "other"
+          ]
+        },
+        {
+          "association": "deal",
+          "property": "dealstage",
+          "operator": "none of open stages",
+          "label": "No associated deal in an open stage"
+        },
+        {
+          "property": "hs_marketable_status",
+          "operator": "is",
+          "value": "Marketing contact"
+        },
+        {
+          "property": "hs_email_optout",
+          "operator": "is not",
+          "value": "true",
+          "label": "Unsubscribed from all email"
+        },
+        {
+          "property": "hs_email_hard_bounce_reason_enum",
+          "operator": "is unknown",
+          "label": "Hard bounce reason"
+        },
+        {
+          "segment_membership": "Lifecycle agent - suppress",
+          "operator": "is not member"
+        },
+        {
+          "segment_membership": "Global suppression (your existing list)",
+          "operator": "is not member"
+        }
+      ],
+      "how_to_use": "Send the two-email re-engagement. Non-responders become SUNSET on a later run."
+    },
+    {
+      "name": "Lifecycle agent - Onboard",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 1,
+      "email_play": true,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "ONBOARD"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        },
+        {
+          "property": "lifecyclestage",
+          "operator": "is any of",
+          "value": [
+            "customer"
+          ]
+        },
+        {
+          "property": "hs_marketable_status",
+          "operator": "is",
+          "value": "Marketing contact"
+        },
+        {
+          "property": "hs_email_optout",
+          "operator": "is not",
+          "value": "true",
+          "label": "Unsubscribed from all email"
+        },
+        {
+          "property": "hs_email_hard_bounce_reason_enum",
+          "operator": "is unknown",
+          "label": "Hard bounce reason"
+        },
+        {
+          "segment_membership": "Lifecycle agent - suppress",
+          "operator": "is not member"
+        },
+        {
+          "segment_membership": "Global suppression (your existing list)",
+          "operator": "is not member"
+        }
+      ],
+      "how_to_use": "Enrol in onboarding. Customers never enter top-of-funnel nurture."
+    },
+    {
+      "name": "Lifecycle agent - Expand",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 1,
+      "email_play": true,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "EXPAND"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        },
+        {
+          "property": "lifecyclestage",
+          "operator": "is any of",
+          "value": [
+            "customer",
+            "evangelist"
+          ]
+        },
+        {
+          "property": "hs_marketable_status",
+          "operator": "is",
+          "value": "Marketing contact"
+        },
+        {
+          "property": "hs_email_optout",
+          "operator": "is not",
+          "value": "true",
+          "label": "Unsubscribed from all email"
+        },
+        {
+          "property": "hs_email_hard_bounce_reason_enum",
+          "operator": "is unknown",
+          "label": "Hard bounce reason"
+        },
+        {
+          "segment_membership": "Lifecycle agent - suppress",
+          "operator": "is not member"
+        },
+        {
+          "segment_membership": "Global suppression (your existing list)",
+          "operator": "is not member"
+        }
+      ],
+      "how_to_use": "Send expansion content and notify the account owner."
+    },
+    {
+      "name": "Lifecycle agent - Suppress",
+      "type": "static",
+      "object": "contact",
+      "expected_members": 8,
+      "email_play": false,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "SUPPRESS"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        }
+      ],
+      "how_to_use": "Static exclusion list 'Lifecycle agent - suppress'. Use it as an exclusion on every marketing send."
+    },
+    {
+      "name": "Lifecycle agent - Sunset",
+      "type": "static",
+      "object": "contact",
+      "expected_members": 1,
+      "email_play": false,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "SUNSET"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        }
+      ],
+      "how_to_use": "Review, then add to the suppress list or set as non-marketing contacts. Do not email."
+    },
+    {
+      "name": "Lifecycle agent - Owner Alert",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 2,
+      "email_play": false,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "OWNER_ALERT"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        }
+      ],
+      "how_to_use": "Workflow: when lifecycle_next_play becomes OWNER_ALERT, create a task for the deal owner. No marketing email."
+    },
+    {
+      "name": "Lifecycle agent - Mql Sla Alert",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 2,
+      "email_play": false,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "MQL_SLA_ALERT"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        },
+        {
+          "property": "lifecyclestage",
+          "operator": "is any of",
+          "value": [
+            "marketingqualifiedlead"
+          ]
+        }
+      ],
+      "how_to_use": "Workflow: create an SDR task and notify the contact owner."
+    },
+    {
+      "name": "Lifecycle agent - Sales Hand Raise",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 3,
+      "email_play": false,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "SALES_HAND_RAISE"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        }
+      ],
+      "how_to_use": "Workflow: create an owner task. The import also moves Lifecycle Stage forward to MQL where allowed."
+    },
+    {
+      "name": "Lifecycle agent - Sql Assist",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 1,
+      "email_play": false,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "SQL_ASSIST"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        },
+        {
+          "property": "lifecyclestage",
+          "operator": "is any of",
+          "value": [
+            "salesqualifiedlead"
+          ]
+        }
+      ],
+      "how_to_use": "Owner task: send a relevant case study 1:1 and suggest a meeting."
+    },
+    {
+      "name": "Lifecycle agent - Customer Check In",
+      "type": "active",
+      "object": "contact",
+      "expected_members": 1,
+      "email_play": false,
+      "filters_all_of": [
+        {
+          "property": "lifecycle_next_play",
+          "operator": "is",
+          "value": "CUSTOMER_CHECK_IN"
+        },
+        {
+          "property": "lifecycle_play_run_id",
+          "operator": "is",
+          "value": "8efc13122956"
+        },
+        {
+          "property": "lifecyclestage",
+          "operator": "is any of",
+          "value": [
+            "customer",
+            "evangelist"
+          ]
+        }
+      ],
+      "how_to_use": "Owner (CSM) task: personal check-in. No automated email."
+    }
+  ],
+  "note": "Specification only. Build these by hand in HubSpot (CRM > Segments). The agent never creates lists."
+}

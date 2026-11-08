@@ -1,0 +1,3 @@
+# The agent, demo, evals and tests use only the Python standard library (Python 3.10+).
+# Nothing to install for the offline mode. For optional Claude mode:
+#   pip install -r requirements-claude.txt

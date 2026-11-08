@@ -1,0 +1,32 @@
+{
+  "policy_version": "2026-11-08.1",
+  "snapshot_max_age_hours": 24,
+  "allowed_consent_bases": ["explicit_opt_in"],
+  "customer_only_consent_bases": ["soft_opt_in"],
+  "frequency_cap": {"max_marketing_emails_7d": 2, "play_cooldown_days": 14},
+  "engagement": {
+    "window_days": 90,
+    "half_life_days": 30,
+    "weights": {"demo_request": 10, "contact_sales": 10, "pricing_page_view": 5, "webinar_attended": 5, "form_submit": 4, "email_click": 3, "meeting_booked": 6, "product_usage_limit": 6, "email_open": 0},
+    "hot_min": 12, "warm_min": 4
+  },
+  "hand_raise": {"window_days": 14, "events": ["demo_request", "contact_sales"], "pricing_views_needed": 2},
+  "fit": {
+    "icp_industries": ["software", "computer software", "saas", "financial services", "fintech", "healthcare technology", "professional services"],
+    "seniority_high": ["chief", "cxo", "vp", "vice president", "head of", "director"],
+    "seniority_mid": ["manager", "lead", "principal"],
+    "a_min": 5, "b_min": 3
+  },
+  "plays": {
+    "new_lead_days": 30,
+    "onboard_days": 60,
+    "mql_sla_hours": 48,
+    "stalled_sql_days": 30,
+    "dormant_days": 90,
+    "sunset_after_reengage_days": 30
+  },
+  "stage_rules": {"agent_max_stage": "marketingqualifiedlead", "forward_only": true},
+  "internal_domains": ["rubia-demo.example"],
+  "competitor_domains": ["rivalcrm.example"],
+  "approval_ttl_hours": 72
+}

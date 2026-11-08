@@ -1,0 +1,8 @@
+# SYNTHETIC DATA for lifecycle-marketing-agent. Invented people and companies; .example domains. Not real contacts.
+Email or Domain,Reason,Added At
+ CHRIS.DOYLE@meadow.example,spam complaint,2026-09-01
+@oldco.example,"acquired company, legal request",2026-07-07
+ben.okoro@stale-domain.example,hard bounce,2026-08-08
+@rivalcrm.example,competitor,2025-01-01
+legal.hold@archive.example,legal request,2026-02-02
+,blank row from export,

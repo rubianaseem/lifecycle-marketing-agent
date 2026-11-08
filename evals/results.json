@@ -1,0 +1,248 @@
+{
+  "eval_set": "evals/cases_v1.json (v1, 50 cases)",
+  "system": {
+    "cases": 50,
+    "exact_accuracy": 0.96,
+    "play_accuracy": 0.96,
+    "violations": {
+      "consent_or_suppression": 0,
+      "open_deal_nurtured": 0,
+      "customer_got_tofu": 0,
+      "frequency_cap": 0,
+      "stage_rule": 0
+    },
+    "violation_cases": {
+      "consent_or_suppression": [],
+      "open_deal_nurtured": [],
+      "customer_got_tofu": [],
+      "frequency_cap": [],
+      "stage_rule": []
+    },
+    "opt_out_caught": "1 of 2",
+    "opt_out_false_positives": 2,
+    "misses": [
+      "C43: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C44: expected NURTURE_EDUCATION/PROPOSED, got SUPPRESS/PROPOSED"
+    ]
+  },
+  "baseline": {
+    "cases": 50,
+    "exact_accuracy": 0.26,
+    "play_accuracy": 0.42,
+    "violations": {
+      "consent_or_suppression": 13,
+      "open_deal_nurtured": 2,
+      "customer_got_tofu": 0,
+      "frequency_cap": 3,
+      "stage_rule": 0
+    },
+    "violation_cases": {
+      "consent_or_suppression": [
+        "C02",
+        "C07",
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C36",
+        "C41",
+        "C45",
+        "C46",
+        "C49"
+      ],
+      "open_deal_nurtured": [
+        "C20",
+        "C48"
+      ],
+      "customer_got_tofu": [],
+      "frequency_cap": [
+        "C31",
+        "C32",
+        "C35"
+      ],
+      "stage_rule": []
+    },
+    "opt_out_caught": "0 of 2",
+    "opt_out_false_positives": 0,
+    "misses": [
+      "C02: expected NURTURE_WELCOME/HOLD, got NURTURE_WELCOME/PROPOSED",
+      "C05: expected RE_ENGAGE/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C07: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C08: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C09: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C10: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C11: expected NURTURE_EDUCATION/HOLD, got NURTURE_EDUCATION/PROPOSED",
+      "C12: expected NURTURE_EDUCATION/HOLD, got NURTURE_EDUCATION/PROPOSED",
+      "C13: expected NURTURE_EDUCATION/HOLD, got NURTURE_EDUCATION/PROPOSED",
+      "C15: expected EXPAND/PROPOSED, got NO_ACTION/NO_ACTION",
+      "C16: expected EXPAND/PROPOSED, got NO_ACTION/NO_ACTION",
+      "C18: expected CUSTOMER_CHECK_IN/PROPOSED, got NO_ACTION/NO_ACTION",
+      "C19: expected OWNER_ALERT/PROPOSED, got NO_ACTION/NO_ACTION",
+      "C20: expected OWNER_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C21: expected DATA_REVIEW/REVIEW, got NO_ACTION/NO_ACTION",
+      "C22: expected MQL_SLA_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C23: expected NO_ACTION/NO_ACTION, got NURTURE_EDUCATION/PROPOSED",
+      "C25: expected SALES_HAND_RAISE/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C26: expected SALES_HAND_RAISE/REVIEW, got NURTURE_EDUCATION/PROPOSED",
+      "C27: expected SALES_HAND_RAISE/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C29: expected SQL_ASSIST/PROPOSED, got NO_ACTION/NO_ACTION",
+      "C31: expected NURTURE_EDUCATION/DEFER, got NURTURE_EDUCATION/PROPOSED",
+      "C32: expected NURTURE_EDUCATION/DEFER, got NURTURE_EDUCATION/PROPOSED",
+      "C33: expected SUNSET/PROPOSED, got RE_ENGAGE/PROPOSED",
+      "C35: expected RE_ENGAGE/DEFER, got RE_ENGAGE/PROPOSED",
+      "C36: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C37: expected DATA_REVIEW/REVIEW, got RE_ENGAGE/PROPOSED",
+      "C39: expected MQL_SLA_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C41: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C42: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C43: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C45: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C46: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C47: expected DATA_REVIEW/REVIEW, got NURTURE_EDUCATION/PROPOSED",
+      "C48: expected OWNER_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C49: expected ONBOARD/HOLD, got ONBOARD/PROPOSED",
+      "C50: expected EXPAND/PROPOSED, got NO_ACTION/NO_ACTION"
+    ]
+  },
+  "injection": {
+    "cases": 4,
+    "system": {
+      "quarantined": 3,
+      "in_prompt": 1,
+      "in_output_compromised_model": 1
+    },
+    "baseline": {
+      "quarantined": 0,
+      "in_prompt": 4,
+      "in_output_compromised_model": 4
+    }
+  },
+  "failure_suite": {
+    "passed": 24,
+    "total": 24,
+    "scenarios": [
+      {
+        "scenario": "model 429 twice then succeeds",
+        "passed": true,
+        "detail": "calls=3 source=claude"
+      },
+      {
+        "scenario": "model 500 on every attempt falls back to template",
+        "passed": true,
+        "detail": "calls=3"
+      },
+      {
+        "scenario": "non-retryable 400 is not retried",
+        "passed": true,
+        "detail": "calls=1"
+      },
+      {
+        "scenario": "model output with a link is rejected",
+        "passed": true,
+        "detail": "template"
+      },
+      {
+        "scenario": "model output with an email address is rejected",
+        "passed": true,
+        "detail": "template"
+      },
+      {
+        "scenario": "model output with offer language is rejected",
+        "passed": true,
+        "detail": "template"
+      },
+      {
+        "scenario": "model echoing quarantined text is rejected",
+        "passed": true,
+        "detail": "template"
+      },
+      {
+        "scenario": "draft that is not JSON keeps templates only",
+        "passed": true,
+        "detail": "2 variants"
+      },
+      {
+        "scenario": "crash after ingest then resume gives identical import",
+        "passed": true,
+        "detail": "resumed_and_completed"
+      },
+      {
+        "scenario": "crash after plan then resume gives identical import",
+        "passed": true,
+        "detail": "resumed_and_completed"
+      },
+      {
+        "scenario": "replaying the same inputs is a no-op",
+        "passed": true,
+        "detail": "already_complete"
+      },
+      {
+        "scenario": "next-day re-run proposes no duplicate plays",
+        "passed": true,
+        "detail": "duplicates_skipped=24"
+      },
+      {
+        "scenario": "stale snapshot is refused",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "missing export timestamp is treated as stale",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "release without approval is refused",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "approval by someone not allowed for the artifact is refused",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "approval without the full hash is refused",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "informational artifact cannot be approved",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "file edited after approval cannot be released",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "expired approval cannot be released",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "edited approvals log blocks release",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "untouched approved file releases",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "scenario": "decision trace with a deleted line fails verification",
+        "passed": true,
+        "detail": "line 4: prev_hash mismatch"
+      },
+      {
+        "scenario": "artifacts from an --allow-stale run cannot be approved",
+        "passed": true,
+        "detail": ""
+      }
+    ]
+  }
+}

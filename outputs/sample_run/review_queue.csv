@@ -1,0 +1,12 @@
+contact_id,email,play,status,item,what_to_check,decision,decided_by
+1001,priya.raman@northwind.example,SALES_HAND_RAISE,PROPOSED,data:duplicate_merged:1002,"Fix the data in HubSpot (email, lifecycle stage, dates or duplicates), then re-run. Merges keep the most restrictive consent.",,
+1018,not-an-email,DATA_REVIEW,REVIEW,data:invalid_email,"Fix the data in HubSpot (email, lifecycle stage, dates or duplicates), then re-run. Merges keep the most restrictive consent.",,
+1019,lee.park@trialco.example,DATA_REVIEW,REVIEW,data:unknown_stage:Trial User,"Fix the data in HubSpot (email, lifecycle stage, dates or duplicates), then re-run. Merges keep the most restrictive consent.",,
+1020,mia.chen@blankstage.example,DATA_REVIEW,REVIEW,data:missing_lifecycle_stage,"Fix the data in HubSpot (email, lifecycle stage, dates or duplicates), then re-run. Merges keep the most restrictive consent.",,
+1021,chris.doyle@meadow.example,SUPPRESS,PROPOSED,quarantined_text:1021,Free text looked like instructions to a system. It was not used. Read it in HubSpot; take no action it asks for.,,
+1022,ines.alves@portela.example,SUPPRESS,PROPOSED,record_unsubscribe_in_hubspot_manually,The person asked to stop emails. Confirm and set their subscription status in HubSpot yourself.,,
+1026,ada.nwosu@kiln.example,NURTURE_EDUCATION,HOLD,engaged_but_not_emailable,Engaged contact without usable consent or marketing status. Sales can follow up 1:1; do not add to email.,,
+1027,student.jay@gmail.com,SALES_HAND_RAISE,REVIEW,low_fit_hand_raise_human_decides,Hand-raise from a low-fit contact. Decide whether sales should follow up.,,
+1028,ola.berg@fjord.example,MQL_SLA_ALERT,PROPOSED,quarantined_text:E-0024,Free text looked like instructions to a system. It was not used. Read it in HubSpot; take no action it asks for.,,
+1034,tariq.aziz@dune.example,RE_ENGAGE,PROPOSED,data:unparseable_date:Create Date,"Fix the data in HubSpot (email, lifecycle stage, dates or duplicates), then re-run. Merges keep the most restrictive consent.",,
+1035,eva.novak@kestrel.example,CUSTOMER_CHECK_IN,REVIEW,no_owner_to_route_to,"Owner task play but no owner. Assign an owner in HubSpot, then re-run.",,

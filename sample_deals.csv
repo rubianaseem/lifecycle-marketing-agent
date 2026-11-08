@@ -1,0 +1,9 @@
+# SYNTHETIC DATA for lifecycle-marketing-agent. Invented people and companies; .example domains. Not real contacts.
+Deal ID,Associated Contact ID,Deal Stage,Is Closed,Is Closed Won,Deal Owner,Close Date
+D-501,1006,contractsent,false,false,Ana Ruiz,2026-11-30
+D-502,1029,qualifiedtobuy,No,No,Tom Becker,2026-12-15
+D-503,1009,closedwon,true,true,Tom Becker,2026-10-15
+D-504,1010,closedwon,true,true,Sam Ortiz,2025-03-01
+D-505,1012,closedlost,,,Tom Becker,2025-04-04
+D-506,9999,appointmentscheduled,false,false,Ana Ruiz,2026-12-01
+D-507,1002,closedlost,true,false,Tom Becker,2026-05-05

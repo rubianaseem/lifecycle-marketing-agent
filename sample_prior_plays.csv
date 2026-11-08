@@ -1,0 +1,8 @@
+# SYNTHETIC DATA for lifecycle-marketing-agent. Invented people and companies; .example domains. Not real contacts.
+Contact Record ID,Play,Proposed At,Outcome
+1013,RE_ENGAGE,2026-09-20,no_response
+1015,NURTURE_EDUCATION,2026-11-01,sent
+1014,NURTURE_WELCOME,2026-05-01,sent
+1012,NURTURE_EDUCATION,2025-03-01,sent
+8888,RE_ENGAGE,2026-10-10,unknown contact
+1003,NURTURE_WELCOME,yesterday,bad date

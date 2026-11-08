@@ -1,0 +1,89 @@
+{
+  "run_id": "8efc13122956",
+  "as_of": "2026-11-08T12:00:00Z",
+  "exported_at": "2026-11-08T07:30:00Z",
+  "age_hours": 4.5,
+  "stale": false,
+  "mode": "offline",
+  "policy_version": "2026-11-08.1",
+  "agent_version": "1.0.0",
+  "summary": {
+    "contacts": 34,
+    "by_status": {
+      "DEFER": 2,
+      "HOLD": 3,
+      "PROPOSED": 24,
+      "REVIEW": 5
+    },
+    "by_play_proposed": {
+      "CUSTOMER_CHECK_IN": 1,
+      "EXPAND": 1,
+      "MQL_SLA_ALERT": 2,
+      "NURTURE_EDUCATION": 1,
+      "NURTURE_WELCOME": 1,
+      "ONBOARD": 1,
+      "OWNER_ALERT": 2,
+      "RE_ENGAGE": 2,
+      "SALES_HAND_RAISE": 3,
+      "SQL_ASSIST": 1,
+      "SUNSET": 1,
+      "SUPPRESS": 8
+    },
+    "import_rows": 24,
+    "review_items": 11,
+    "email_plays_blocked_by_consent": 3,
+    "deferred_by_frequency_cap": 2,
+    "duplicates_skipped": 0,
+    "quarantined_texts": 2,
+    "stage_changes_proposed": 1,
+    "model_text_used": 0
+  },
+  "artifacts": {
+    "play_assignments.csv": {
+      "sha256": "00089e380e9a3d796f7259b6b30f6e889b82532721d69b4a96b554b225ac63d3",
+      "approvable": false,
+      "status": "INFORMATIONAL"
+    },
+    "review_queue.csv": {
+      "sha256": "41c41db290a8fcc33ac9d1261dd2b41b6b68aa0b6f3af8f8ed2637a0c218fa52",
+      "approvable": false,
+      "status": "INFORMATIONAL"
+    },
+    "hubspot_import_proposed.csv": {
+      "sha256": "410fd4c9948389b17624cdebb3cc3fa92903f8616a823dbef5f41e36a2f80987",
+      "approvable": true,
+      "status": "PENDING_APPROVAL"
+    },
+    "list_criteria.json": {
+      "sha256": "f2ea5eb6b1289e1ee9380351cf6c34ccdd8f354cad877768655641a169de4f35",
+      "approvable": true,
+      "status": "PENDING_APPROVAL"
+    },
+    "list_criteria.md": {
+      "sha256": "bec2e82406c6957fc9193048523ee7bc633d891f1776c25171a23bb971fd3234",
+      "approvable": false,
+      "status": "INFORMATIONAL"
+    },
+    "nurture_drafts.md": {
+      "sha256": "615d4731196bebea734f77c77aadc6ce112cbe10a68779c24f9df4f75f45e5f1",
+      "approvable": true,
+      "status": "PENDING_APPROVAL"
+    },
+    "segment_report.md": {
+      "sha256": "6fdaf409eac04ffe0886444589452518a645dd14e2bd46b3fa163bc487d2eb10",
+      "approvable": false,
+      "status": "INFORMATIONAL"
+    },
+    "brief.md": {
+      "sha256": "2dbb5e579d83520333b35674d352a06960d9f674db014576f4641b276278070b",
+      "approvable": false,
+      "status": "INFORMATIONAL"
+    },
+    "decisions.jsonl": {
+      "sha256": "61483c906b95987db8857f8131232a1bf56cf93063eda1d5453f7c33db2d9365",
+      "approvable": false,
+      "status": "INFORMATIONAL"
+    }
+  },
+  "writes_performed": "local files only; no CRM writes, no sends, no deletes"
+}

@@ -1,0 +1,8 @@
+{
+  "artifact": "hubspot_import_proposed.csv",
+  "sha256": "410fd4c9948389b17624cdebb3cc3fa92903f8616a823dbef5f41e36a2f80987",
+  "approved_by": "Rubia Naseem",
+  "approved_at": "2026-11-08T13:00:00Z",
+  "released_at": "2026-11-08T13:00:00Z",
+  "next_step": "Manual: import or build this in HubSpot yourself. The agent performs no CRM writes."
+}
