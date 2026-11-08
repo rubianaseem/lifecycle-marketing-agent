@@ -1,4 +1,4 @@
-# Nurture email drafts (run 8efc13122956)
+# Nurture email drafts (run 3019d79ab3f2)
 
 Source: Offline run: every variant below is a template. No model was called.
 Status: PENDING APPROVAL. Copy approved text into HubSpot emails by hand. Nothing is sent by this agent.

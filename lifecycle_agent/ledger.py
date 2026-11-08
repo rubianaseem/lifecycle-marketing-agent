@@ -1,9 +1,10 @@
 """Play ledger: makes re-runs idempotent.
 
-A play is identified by key = sha256(contact_id | play | policy_version). If the same play for the
-same contact was already proposed by an earlier run inside the cooldown window, the new run marks
-it DUPLICATE and leaves it out of the import. Replaying the SAME run_id reproduces the same
-artifacts instead of being treated as a duplicate.
+Email plays use key = sha256(contact_id | play | policy_version) and a cooldown window.
+A sales task that belongs to one real event (an MQL creation, or one set of open deals)
+uses key = sha256(contact_id | play | event identity) with no cooldown and no policy version.
+The same event is not proposed again on a later snapshot. A different event gets a new key.
+Replaying the SAME run_id reproduces the same artifacts instead of being treated as a duplicate.
 """
 from __future__ import annotations
 
@@ -18,19 +19,30 @@ def play_key(contact_id: str, play: str, policy_version: str) -> str:
     return sha256_bytes(f"{contact_id}|{play}|{policy_version}".encode())[:24]
 
 
+def task_event_key(contact_id: str, play: str, identity: str) -> str:
+    """Stable key for one task event. Policy version is not included, so a wording change does not create a second task."""
+    return sha256_bytes(f"{contact_id}|{play}|{identity}".encode())[:24]
+
+
 class Ledger:
     def __init__(self, path: str | Path):
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.entries: dict[str, dict] = json.loads(self.path.read_text()) if self.path.exists() else {}
 
-    def check(self, key: str, run_id: str, as_of: datetime, cooldown_days: int) -> str:
-        """Returns 'new', 'same_run' or 'duplicate'."""
+    def check(self, key: str, run_id: str, as_of: datetime, cooldown_days: int | None) -> str:
+        """Returns 'new', 'same_run' or 'duplicate'.
+
+        cooldown_days None means the key is an event: any earlier run already proposed it,
+        and a later snapshot must not propose it again.
+        """
         e = self.entries.get(key)
         if not e:
             return "new"
         if e["run_id"] == run_id:
             return "same_run"
+        if cooldown_days is None:
+            return "duplicate"
         prev = parse_dt(e["as_of"])
         if prev and as_of - prev < timedelta(days=cooldown_days):
             return "duplicate"

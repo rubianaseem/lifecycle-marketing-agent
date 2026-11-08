@@ -40,14 +40,14 @@ Export these as CSV and name them with a prefix, for example `mydata_contacts.cs
 
 | File | Where it comes from | Columns |
 |---|---|---|
-| `_contacts.csv` | Contacts view export | Record ID, Email, First Name, Company Name, Job Title, Company Size, Industry, Country/Region, Lifecycle Stage, Lead Status, Marketing contact status, Consent Basis, Unsubscribed from all email, Hard bounced, Create Date, Became a Customer Date, Date entered current stage, Last Contacted, Contact owner, Notes |
+| `_contacts.csv` | Contacts view export | Record ID, Email, First Name, Company Name, Job Title, Company Size, Industry, Country/Region, Lifecycle Stage, Lead Status, Marketing contact status, Consent Basis, Subscriber type, Lawful basis, Legitimate interests assessment, Unsubscribed from all email, Hard bounced, Create Date, Became a Customer Date, Date entered current stage, Last Contacted, Contact owner, Notes |
 | `_engagement.csv` | Activity or event export, or your warehouse | Event ID, Contact Record ID, Email, Event Type, Occurred At, Detail |
 | `_deals.csv` | Deals export with associated contact | Deal ID, Associated Contact ID, Deal Stage, Is Closed, Is Closed Won, Deal Owner, Close Date |
 | `_suppression.csv` | Your suppression lists | Email or Domain (use `@domain` for domains), Reason, Added At |
 | `_prior_plays.csv` | Previous runs or your own history | Contact Record ID, Play, Proposed At, Outcome |
 | `_export_manifest.json` | You write it | `{"exported_at": "2026-11-08T07:30:00Z"}` |
 
-Consent Basis is often a custom property. Map your values to explicit opt-in, soft opt-in, legitimate interest or withdrawn (see `CONSENT_ALIASES` in `lifecycle_agent/ingest.py`).
+Consent Basis is often a custom property. Map explicit opt-in, soft opt-in and withdrawn in `CONSENT_ALIASES`. A value of legitimate interest is stored as a lawful basis, not as consent. Subscriber type is a separate column (`individual`, `sole trader`, `partnership`, `corporate`). A blank, a company name, or an email domain stays `unknown` and the contact is held. Do not fill subscriber type by guessing from the domain.
 
 Pulling the exports by API instead (not built here): create a HubSpot private app with read-only scopes such as `crm.objects.contacts.read` and `crm.objects.deals.read`, and write the same CSV columns. Do not grant write scopes; this agent never needs them.
 

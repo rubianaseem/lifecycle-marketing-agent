@@ -1,5 +1,5 @@
 {
-  "policy_version": "2026-11-08.1",
+  "policy_version": "2026-11-08.2",
   "snapshot_max_age_hours": 24,
   "allowed_consent_bases": ["explicit_opt_in"],
   "customer_only_consent_bases": ["soft_opt_in"],
@@ -17,10 +17,21 @@
     "seniority_mid": ["manager", "lead", "principal"],
     "a_min": 5, "b_min": 3
   },
+  "email_eligibility": {
+    "hold_unverified": true,
+    "do_not_infer_subscriber_type": true,
+    "accept_corporate_legitimate_interests_without_lia": false,
+    "accept_recorded_lia_for_corporate": false
+  },
+  "mql_follow_up": {
+    "enabled": true,
+    "one_task_per_creation_event": true,
+    "sla_hours": null,
+    "auto_escalate": false
+  },
   "plays": {
     "new_lead_days": 30,
     "onboard_days": 60,
-    "mql_sla_hours": 48,
     "stalled_sql_days": 30,
     "dormant_days": 90,
     "sunset_after_reengage_days": 30

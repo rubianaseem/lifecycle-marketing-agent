@@ -5,7 +5,7 @@
 | Part | Status |
 |---|---|
 | Ingest, normalisation, duplicate merge, event hygiene | Implemented, tested locally on synthetic data |
-| Fit and engagement scoring, 14 plays, hard controls | Implemented, tested locally, evaluated on 50 synthetic cases (evals/cases_v1.json) |
+| Fit and engagement scoring, 14 plays, hard controls | Implemented, tested locally, evaluated on 58 synthetic cases (evals/cases_v2.json; v1 kept) |
 | Free-text screening (opt-out and injection patterns) | Implemented, tested locally. Pattern based, so paraphrases get through (see EVALUATION.md) |
 | Output validator and template fallback | Implemented, tested with scripted model doubles |
 | Claude calls (`AnthropicClient`) | Implemented. Error path checked once against the real endpoint with an invalid key (401, not retried, templates used). Successful live calls not tested and not part of any reported number |
@@ -36,22 +36,23 @@ I have no access to anyone's billing, so this is a sizing method, not a price. O
 
 ## Customise for your stack
 
-- `config/policy.json`: consent bases you accept, frequency caps, cooldown, SLA hours, dormant days, fit points, ICP industries and seniority words, internal and competitor domains, snapshot age, approval TTL.
+- `config/policy.json`: consent bases you accept, frequency caps, cooldown, dormant days, fit points, ICP industries and seniority words, internal and competitor domains, snapshot age, approval TTL. `mql_follow_up.sla_hours` is null and `auto_escalate` is false; the code does not read them as a timer. `email_eligibility` holds the demo defaults for unverified corporate legitimate interests.
 - `config/approvers.json`: who may approve which artifact.
 - `lifecycle_agent/plays.py`: precedence and new plays. Add the play to `PLAY_CHANNEL`, `criteria.PLAY_SPECS` and, if email, `controls.EMAIL_PLAYS` and `drafts.TEMPLATES`.
 - `lifecycle_agent/untrusted.py`: pattern lists for opt-out and injection.
 
-## Defaults that need a business decision
+## Decisions recorded on 8 Nov 2026
 
-These are my defaults, written down so they can be changed deliberately:
+Rubia answered the open policy questions on 8 Nov 2026. These are the rules in code. They are not a claim that every personal or company policy is known, and they are not legal advice. Citations and the limits of the research are in [SOURCES.md](SOURCES.md).
 
-- Legitimate interest is not accepted for marketing email (most restrictive). Some B2B teams email corporate subscribers under legitimate interest; that is a legal call for your DPO.
-- Soft opt-in counts only for customers (stage customer or evangelist).
+- Low-fit demo and contact-sales requests go to human review first. They are not in the proposed import. After `low_fit_sales_tasks.csv` is approved by its full hash, that file is a local sales-task plan. The low-fit label and the reasons stay in the approved bytes. Editing the label voids the approval.
+- Creating an MQL proposes one local sales follow-up task for that creation event (`MQL_FOLLOW_UP`). The same event is not proposed again on a later snapshot. A missing owner goes to review. There is no SLA and no automatic escalation. `mql_follow_up.sla_hours` is null on purpose. If sales was already contacted after that creation, or a prior play already records the task, a second task is not opened. Removing the old 48-hour hold does not itself send marketing email. Eligibility, suppression and frequency still decide any later email play.
+- An open deal proposes one sales task with the deal id, stage and resolved owner (deal owner, otherwise contact owner, otherwise review). The same deal set and owner are not tasked again. The task text does not invent per-deal instructions. Marketing email stays off. No exception flag was added.
+- A suppressed or unsubscribed contact is SUPPRESS even if they also have an open deal or a recorded opt-in.
+- Email eligibility holds unknown or unverified subscriber type, PECR consent and lawful basis. Subscriber type is an explicit column. It is not inferred from the email domain or the company name. Legitimate interests is a UK GDPR lawful basis, not PECR consent, and the reason codes say so. Recorded explicit opt-in can still pass, including when subscriber type is blank, because that is the stricter individual-subscriber rule. Soft opt-in still passes only for customer or evangelist stage, and that check does not prove the other soft-opt-in conditions. A recorded corporate subscriber with only an unassessed legitimate-interests label is held. That hold is this repo's demo default (`accept_corporate_legitimate_interests_without_lia` is false). ICO guidance does not say that legitimate interests is unlawful for every corporate subscriber.
 - Opens score zero.
-- Any open deal blocks marketing email and routes to the deal owner. A team may prefer customer-marketing emails to continue during expansion deals.
-- A suppressed contact with an open deal is SUPPRESS, not OWNER_ALERT; the owner already owns the deal.
-- New MQLs inside the 48-hour SLA get no marketing email while sales works them.
-- Hand-raises from fit C go to review rather than straight to sales.
+
+Still not decided here: the rest of a live portal's consent taxonomy, who may rely on a finished legitimate-interests assessment, and whether any future open-deal marketing exception should exist. Those need a later decision. Nothing in this repo sends mail.
 
 ## Real HubSpot export by API (design only)
 

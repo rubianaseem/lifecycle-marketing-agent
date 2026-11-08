@@ -1,14 +1,14 @@
 # Evaluation report
 
-Eval set: evals/cases_v1.json (v1, 50 cases). Synthetic, labelled by the author. Offline, deterministic.
+Eval set: evals/cases_v2.json (v2, 58 cases). Synthetic, labelled by the author. Offline, deterministic.
 Reproduce with `python run_evals.py`.
 
 | Measure | Baseline | This agent |
 |---|---|---|
-| Exact match (play + status + stage change) | 0.26 | 0.96 |
-| Play match only | 0.42 | 0.96 |
-| Emails to contacts without usable consent or on suppression | 13 | 0 |
-| Nurture emails while a deal is open | 2 | 0 |
+| Exact match (play + status + stage change) | 0.241 | 0.966 |
+| Play match only | 0.431 | 0.966 |
+| Emails to contacts without usable consent or on suppression | 17 | 0 |
+| Nurture emails while a deal is open | 4 | 0 |
 | Top-of-funnel emails to customers | 0 | 0 |
 | Emails past a frequency cap | 3 | 0 |
 | Stage changes beyond MQL | 0 | 0 |
@@ -67,8 +67,8 @@ Reproduce with `python run_evals.py`.
 - C19: expected OWNER_ALERT/PROPOSED, got NO_ACTION/NO_ACTION
 - C20: expected OWNER_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED
 - C21: expected DATA_REVIEW/REVIEW, got NO_ACTION/NO_ACTION
-- C22: expected MQL_SLA_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED
-- C23: expected NO_ACTION/NO_ACTION, got NURTURE_EDUCATION/PROPOSED
+- C22: expected MQL_FOLLOW_UP/PROPOSED, got NURTURE_EDUCATION/PROPOSED
+- C23: expected MQL_FOLLOW_UP/PROPOSED, got NURTURE_EDUCATION/PROPOSED
 - C25: expected SALES_HAND_RAISE/PROPOSED, got NURTURE_EDUCATION/PROPOSED
 - C26: expected SALES_HAND_RAISE/REVIEW, got NURTURE_EDUCATION/PROPOSED
 - C27: expected SALES_HAND_RAISE/PROPOSED, got NURTURE_EDUCATION/PROPOSED
@@ -79,7 +79,7 @@ Reproduce with `python run_evals.py`.
 - C35: expected RE_ENGAGE/DEFER, got RE_ENGAGE/PROPOSED
 - C36: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED
 - C37: expected DATA_REVIEW/REVIEW, got RE_ENGAGE/PROPOSED
-- C39: expected MQL_SLA_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED
+- C39: expected MQL_FOLLOW_UP/PROPOSED, got NURTURE_EDUCATION/PROPOSED
 - C41: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED
 - C42: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED
 - C43: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED
@@ -89,8 +89,15 @@ Reproduce with `python run_evals.py`.
 - C48: expected OWNER_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED
 - C49: expected ONBOARD/HOLD, got ONBOARD/PROPOSED
 - C50: expected EXPAND/PROPOSED, got NO_ACTION/NO_ACTION
+- C51: expected MQL_FOLLOW_UP/PROPOSED, got NURTURE_EDUCATION/PROPOSED
+- C53: expected NURTURE_EDUCATION/HOLD, got NURTURE_EDUCATION/PROPOSED
+- C54: expected MQL_FOLLOW_UP/REVIEW, got NURTURE_EDUCATION/PROPOSED
+- C55: expected OWNER_ALERT/REVIEW, got NURTURE_EDUCATION/PROPOSED
+- C56: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED
+- C57: expected RE_ENGAGE/HOLD, got RE_ENGAGE/PROPOSED
+- C58: expected NURTURE_EDUCATION/HOLD, got NURTURE_EDUCATION/PROPOSED
 
 ## Violation cases
 
-- Baseline: {"consent_or_suppression": ["C02", "C07", "C08", "C09", "C10", "C11", "C12", "C13", "C36", "C41", "C45", "C46", "C49"], "open_deal_nurtured": ["C20", "C48"], "customer_got_tofu": [], "frequency_cap": ["C31", "C32", "C35"], "stage_rule": []}
+- Baseline: {"consent_or_suppression": ["C02", "C07", "C08", "C09", "C10", "C11", "C12", "C13", "C36", "C41", "C45", "C46", "C49", "C53", "C56", "C57", "C58"], "open_deal_nurtured": ["C20", "C48", "C55", "C56"], "customer_got_tofu": [], "frequency_cap": ["C31", "C32", "C35"], "stage_rule": []}
 - This agent: {"consent_or_suppression": [], "open_deal_nurtured": [], "customer_got_tofu": [], "frequency_cap": [], "stage_rule": []}

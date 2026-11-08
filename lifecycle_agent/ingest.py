@@ -3,7 +3,8 @@
 Data contract (column names follow a HubSpot contact export, so a real export maps easily):
   contacts:    Record ID, Email, First Name, Company Name, Job Title, Company Size, Industry,
                Country/Region, Lifecycle Stage, Lead Status, Marketing contact status,
-               Consent Basis, Unsubscribed from all email, Hard bounced, Create Date,
+               Consent Basis, Subscriber type, Lawful basis, Legitimate interests assessment,
+               Unsubscribed from all email, Hard bounced, Create Date,
                Became a Customer Date, Date entered current stage, Last Contacted,
                Contact owner, Notes
   engagement:  Event ID, Contact Record ID, Email, Event Type, Occurred At, Detail
@@ -45,7 +46,19 @@ CONSENT_ALIASES = {
     "withdrawn": "withdrawn", "no": "withdrawn", "opted out": "withdrawn", "opt-out": "withdrawn",
 }
 # Most restrictive first. When duplicates disagree, the most restrictive value wins.
+# legitimate_interest stays in this order so a duplicate cannot upgrade a blank or
+# withdrawn value. It is a GDPR lawful-basis label, not a form of consent.
 CONSENT_RESTRICTIVENESS = ["withdrawn", "unknown", "legitimate_interest", "soft_opt_in", "explicit_opt_in"]
+SUBSCRIBER_ALIASES = {
+    "individual": "individual", "person": "individual",
+    "sole_trader": "sole_trader", "sole trader": "sole_trader",
+    "partnership": "partnership",
+    "corporate": "corporate", "corporate_subscriber": "corporate", "corporate subscriber": "corporate",
+}
+LAWFUL_BASIS_ALIASES = {
+    "consent": "consent", "legitimate_interests": "legitimate_interests",
+    "legitimate interests": "legitimate_interests", "legitimate interest": "legitimate_interests",
+}
 EVENT_ALIASES = {
     "pricing page view": "pricing_page_view", "page_view_pricing": "pricing_page_view",
     "demo request": "demo_request", "contact sales": "contact_sales",
@@ -78,6 +91,21 @@ def norm_consent(value: str | None) -> str:
     if not v:
         return "unknown"
     return CONSENT_ALIASES.get(v, "unknown")
+
+
+def norm_subscriber(value: str | None) -> str:
+    """Explicit subscriber-type values only. Company name and email domain are not inputs."""
+    v = (value or "").strip().lower()
+    if not v:
+        return "unknown"
+    return SUBSCRIBER_ALIASES.get(v, "unknown")
+
+
+def norm_lawful_basis(value: str | None) -> str:
+    v = (value or "").strip().lower()
+    if not v:
+        return "unknown"
+    return LAWFUL_BASIS_ALIASES.get(v, "unknown")
 
 
 def norm_event(value: str | None) -> str:
@@ -115,6 +143,9 @@ def _contact(row: dict, notes: list) -> dict:
         "lead_status": (row.get("Lead Status") or "").strip(),
         "marketing_contact": mstat == "marketing contact" or truthy(mstat) is True,
         "consent": norm_consent(row.get("Consent Basis")),
+        "subscriber_type": norm_subscriber(row.get("Subscriber type")),
+        "lawful_basis": norm_lawful_basis(row.get("Lawful basis")),
+        "lia_recorded": truthy(row.get("Legitimate interests assessment")) is True,
         "unsubscribed": truthy(row.get("Unsubscribed from all email")) is True,
         "hard_bounced": truthy(row.get("Hard bounced")) is True,
         "create_date": parse_dt(row.get("Create Date")),
@@ -133,7 +164,20 @@ def _contact(row: dict, notes: list) -> dict:
         c["data_issues"].append("invalid_email")
     if c["stage"] == "unknown":
         c["data_issues"].append(f"unknown_stage:{raw_stage.strip()}")
+    _sync_eligibility(c)
     return c
+
+
+def _sync_eligibility(c: dict) -> None:
+    """Fill PECR consent and lawful basis from the columns without inferring subscriber type."""
+    from .controls import split_legacy_consent
+    pecr, derived = split_legacy_consent(c["consent"])
+    c["pecr_consent"] = pecr
+    recorded = c.get("lawful_basis") or "unknown"
+    if recorded == "unknown":
+        c["lawful_basis"] = derived
+    elif derived not in {"unknown", recorded}:
+        c["lawful_basis"] = "unknown"
 
 
 def _merge(primary: dict, dup: dict) -> dict:
@@ -144,6 +188,13 @@ def _merge(primary: dict, dup: dict) -> dict:
     primary["marketing_contact"] = primary["marketing_contact"] and dup["marketing_contact"]
     ranks = CONSENT_RESTRICTIVENESS
     primary["consent"] = min(primary["consent"], dup["consent"], key=ranks.index)
+    if primary["subscriber_type"] != dup["subscriber_type"]:
+        primary["subscriber_type"] = "unknown"
+    primary["lia_recorded"] = primary["lia_recorded"] and dup["lia_recorded"]
+    basis_rank = ["unknown", "legitimate_interests", "consent"]
+    primary["lawful_basis"] = min(primary["lawful_basis"], dup["lawful_basis"], key=basis_rank.index)
+    from .controls import split_legacy_consent
+    primary["pecr_consent"] = split_legacy_consent(primary["consent"])[0]
     if stage_rank(dup["stage"]) > stage_rank(primary["stage"]):
         primary["stage"], primary["stage_raw"] = dup["stage"], dup["stage_raw"]
     for key in ("customer_date", "last_contacted", "stage_entered"):

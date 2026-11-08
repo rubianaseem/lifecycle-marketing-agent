@@ -53,22 +53,93 @@ def hard_suppression(contact: dict, dataset: dict, screens: list[dict], policy: 
     return reasons
 
 
+INDIVIDUAL_SUBSCRIBERS = {"individual", "sole_trader", "partnership"}
+
+
+def split_legacy_consent(consent: str) -> tuple[str, str]:
+    """Map the old single Consent Basis column.
+
+    explicit opt-in is recorded PECR consent and UK GDPR consent.
+    soft opt-in is a PECR exception, not a GDPR lawful basis.
+    legitimate interest is a GDPR lawful-basis label, not PECR consent.
+    """
+    if consent == "explicit_opt_in":
+        return "explicit_opt_in", "consent"
+    if consent == "soft_opt_in":
+        return "soft_opt_in", "unknown"
+    if consent == "legitimate_interest":
+        return "none", "legitimate_interests"
+    if consent == "withdrawn":
+        return "withdrawn", "unknown"
+    return "unknown", "unknown"
+
+
+def eligibility_fields(contact: dict) -> tuple[str, str, str]:
+    """Return (pecr_consent, lawful_basis, subscriber_type). Never reads email or company name."""
+    subscriber = (contact.get("subscriber_type") or "unknown").strip().lower()
+    if subscriber not in INDIVIDUAL_SUBSCRIBERS | {"corporate", "unknown"}:
+        subscriber = "unknown"
+    if "pecr_consent" in contact or "lawful_basis" in contact:
+        pecr = contact.get("pecr_consent")
+        basis = contact.get("lawful_basis")
+        derived_pecr, derived_basis = split_legacy_consent(contact.get("consent", "unknown"))
+        if not pecr:
+            pecr = derived_pecr
+        if not basis:
+            basis = derived_basis
+        return pecr, basis, subscriber
+    pecr, basis = split_legacy_consent(contact.get("consent", "unknown"))
+    return pecr, basis, subscriber
+
+
+def _corporate_basis_blocks(contact: dict, basis: str, policy: dict) -> list[str]:
+    """UK GDPR still needs a lawful basis for people at a corporate subscriber.
+
+    PECR regulation 22 does not require consent for corporate subscribers. Legitimate
+    interests can be that GDPR basis only after an assessment. This repo does not
+    perform one. The default hold is a demo policy, not a claim that the basis is unlawful.
+    """
+    cfg = policy.get("email_eligibility", {})
+    if basis == "consent":
+        return []
+    if basis == "legitimate_interests":
+        if contact.get("lia_recorded") and cfg.get("accept_recorded_lia_for_corporate") is True:
+            return []
+        if cfg.get("accept_corporate_legitimate_interests_without_lia") is True:
+            return []
+        return ["legitimate_interests_is_not_consent", "legitimate_interests_assessment_not_recorded"]
+    return ["lawful_basis_unverified"]
+
+
 def soft_email_blocks(contact: dict, policy: dict) -> list[str]:
-    """Reasons the contact cannot receive marketing email now, though they are not suppressed."""
+    """Reasons the contact cannot receive marketing email now, though they are not suppressed.
+
+    Opt-out and suppression are applied earlier, in hard_suppression, and win over every basis.
+    Subscriber type is taken only from an explicit field. Email domain and company name are ignored.
+    """
     blocks = []
-    consent = contact["consent"]
-    is_customer = contact["stage"] in {"customer", "evangelist"}
-    if consent in policy["allowed_consent_bases"]:
+    pecr, basis, subscriber = eligibility_fields(contact)
+    is_customer = contact.get("stage") in {"customer", "evangelist"}
+    if pecr == "explicit_opt_in":
         pass
-    elif consent in policy.get("customer_only_consent_bases", []) and is_customer:
+    elif pecr == "soft_opt_in" and subscriber != "corporate" and is_customer:
+        # Customer stage is this repo's recorded proxy for an existing customer.
+        # It does not check the other PECR soft-opt-in conditions.
         pass
-    elif consent in policy.get("customer_only_consent_bases", []):
+    elif pecr == "soft_opt_in" and subscriber != "corporate":
         blocks.append("soft_opt_in_only_valid_for_customers")
-    elif consent == "legitimate_interest":
-        blocks.append("legitimate_interest_not_accepted_for_marketing_email")
+    elif subscriber in INDIVIDUAL_SUBSCRIBERS:
+        if basis == "legitimate_interests":
+            blocks.append("legitimate_interests_is_not_pecr_consent")
+        else:
+            blocks.append("pecr_consent_unverified")
+    elif subscriber == "corporate":
+        blocks.extend(_corporate_basis_blocks(contact, basis, policy))
     else:
-        blocks.append("consent_unknown")
-    if not contact["marketing_contact"]:
+        if basis == "legitimate_interests":
+            blocks.append("legitimate_interests_is_not_consent")
+        blocks.append("eligibility_unverified")
+    if not contact.get("marketing_contact"):
         blocks.append("non_marketing_contact")
     return blocks
 

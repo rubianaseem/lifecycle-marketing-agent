@@ -1,0 +1,2 @@
+Record ID,Email,Company,lifecycle_next_play,fit_label,fit_reasons,reason_codes,route_to,sales_route,label_note
+1027,student.jay@gmail.com,,SALES_HAND_RAISE,low_fit,size unknown (+0); personal email domain (-1),hand_raise_form; low_fit_hand_raise,Tom Becker,pending_human_review,low fit; human review before any sales routing; after approval this file may be used as a local sales-task plan; the low-fit label and reasons stay in the approved bytes

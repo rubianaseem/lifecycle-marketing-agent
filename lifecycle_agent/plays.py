@@ -9,15 +9,17 @@ from datetime import timedelta
 
 from .controls import (EMAIL_PLAYS, frequency_block, hard_suppression, screen_free_text,
                        soft_email_blocks, stage_change_allowed)
+from .ledger import task_event_key
 from .segment import engagement, fit, segment_key
 
 PLAY_CHANNEL = {
     "SUPPRESS": "list", "SUNSET": "list", "DATA_REVIEW": "review", "NO_ACTION": "none",
-    "OWNER_ALERT": "owner_task", "MQL_SLA_ALERT": "owner_task", "SALES_HAND_RAISE": "owner_task",
+    "OWNER_ALERT": "owner_task", "MQL_FOLLOW_UP": "owner_task", "SALES_HAND_RAISE": "owner_task",
     "SQL_ASSIST": "owner_task", "CUSTOMER_CHECK_IN": "owner_task",
     "ONBOARD": "email", "EXPAND": "email", "RE_ENGAGE": "email",
     "NURTURE_WELCOME": "email", "NURTURE_EDUCATION": "email",
 }
+MQL_TASK_PLAYS = {"MQL_FOLLOW_UP", "MQL_SLA_ALERT"}
 EARLY_STAGES = {"subscriber", "lead", "marketingqualifiedlead", "other"}
 
 
@@ -26,7 +28,7 @@ def _recent(events, as_of, days, types):
     return [e for e in events if e["type"] in types and start <= e["at"] <= as_of]
 
 
-def choose_play(c: dict, ds: dict, policy: dict) -> dict:
+def choose_play(c: dict, ds: dict, policy: dict, *, skip_mql_task: bool = False) -> dict:
     as_of = ds["as_of"]
     cid = c["contact_id"]
     events = ds["events"].get(cid, [])
@@ -52,7 +54,9 @@ def choose_play(c: dict, ds: dict, policy: dict) -> dict:
                 "reason_codes": reasons, "evidence_event_ids": evidence,
                 "proposed_stage": stage_change, "route_to": route_to, "next_eligible": "",
                 "review_flags": review, "fit_reasons": f["fit_reasons"], "screens": screens,
-                "merged_ids": c["merged_ids"], "data_issues": c["data_issues"]}
+                "merged_ids": c["merged_ids"], "data_issues": c["data_issues"],
+                "fit_label": "", "task_deal_id": "", "task_deal_stage": "", "task_owner_source": "",
+                "task_event_key": "", "dedupe": "cooldown", "sales_route": ""}
 
     blocking_issues = [i for i in c["data_issues"] if i == "invalid_email" or i.startswith("unknown_stage")]
     if c["stage"] == "none":
@@ -70,10 +74,20 @@ def choose_play(c: dict, ds: dict, policy: dict) -> dict:
 
     open_deals = [d for d in deals if d["open"]]
     if open_deals:
-        d = sorted(open_deals, key=lambda x: x["deal_id"])[0]
-        reasons.append(f"open_deal:{d['deal_id']}:{d['stage']}")
+        ordered = sorted(open_deals, key=lambda x: x["deal_id"])
+        d = ordered[0]
+        for deal in ordered:
+            reasons.append(f"open_deal:{deal['deal_id']}:{deal['stage']}")
         route_to = d["owner"] or c["owner"]
-        return _route_check(result("OWNER_ALERT"))
+        owner_source = "deal_owner" if d["owner"] else ("contact_owner" if c["owner"] else "missing")
+        ident = "open:" + "|".join(f"{x['deal_id']}:{x['owner'] or '-'}" for x in ordered) + f":route:{route_to or 'missing'}"
+        r = result("OWNER_ALERT")
+        r["task_deal_id"] = d["deal_id"]
+        r["task_deal_stage"] = d["stage"]
+        r["task_owner_source"] = owner_source
+        r["task_event_key"] = task_event_key(cid, "OWNER_ALERT", ident)
+        r["dedupe"] = "event"
+        return _route_check(r)
 
     stage = c["stage"]
     if stage == "opportunity":
@@ -105,28 +119,29 @@ def choose_play(c: dict, ds: dict, policy: dict) -> dict:
         reasons.append("sql_owned_by_sales")
         return result("NO_ACTION", "NO_ACTION")
 
-    if stage == "marketingqualifiedlead":
-        entered = c["stage_entered"]
-        lc = c["last_contacted"]
-        if entered and (as_of - entered).total_seconds() > p["mql_sla_hours"] * 3600 and (lc is None or lc < entered):
-            reasons.append(f"mql_not_contacted_within_{p['mql_sla_hours']}h")
-            return _route_check(result("MQL_SLA_ALERT"))
-        if entered and (as_of - entered).total_seconds() <= p["mql_sla_hours"] * 3600 and (lc is None or lc < entered):
-            hr0 = policy["hand_raise"]
-            if not _recent(events, as_of, hr0["window_days"], set(hr0["events"])):
-                reasons.append("new_mql_inside_sla_waiting_for_sales")
-                return result("NO_ACTION", "NO_ACTION")
+    covered_until = None
+    if stage == "marketingqualifiedlead" and policy.get("mql_follow_up", {}).get("enabled", True):
+        task, covered_until = _mql_follow_up(
+            c, events, prior, reasons, evidence, review, result, skip_mql_task=skip_mql_task)
+        if task is not None:
+            return task
 
     hr = policy["hand_raise"]
     hand = _recent(events, as_of, hr["window_days"], set(hr["events"]))
     pricing = _recent(events, as_of, hr["window_days"], {"pricing_page_view"})
+    if covered_until is not None:
+        hand = [e for e in hand if e["at"] > covered_until]
+        pricing = [e for e in pricing if e["at"] > covered_until]
     if stage in EARLY_STAGES and (hand or len(pricing) >= hr["pricing_views_needed"]):
         evidence.extend(x["event_id"] for x in hand + pricing)
         reasons.append("hand_raise_" + ("form" if hand else "repeat_pricing_views"))
         if f["fit_tier"] == "C":
             reasons.append("low_fit_hand_raise")
             review.append("low_fit_hand_raise_human_decides")
-            return result("SALES_HAND_RAISE", "REVIEW")
+            r = result("SALES_HAND_RAISE", "REVIEW")
+            r["fit_label"] = "low_fit"
+            r["sales_route"] = "pending_human_review"
+            return _route_check(r)
         ok, why = stage_change_allowed(stage, "marketingqualifiedlead", policy)
         if ok:
             stage_change = "marketingqualifiedlead"
@@ -161,6 +176,55 @@ def choose_play(c: dict, ds: dict, policy: dict) -> dict:
     return result("NO_ACTION", "NO_ACTION")
 
 
+def _mql_moment(c: dict, events: list):
+    """Identity of one MQL creation. Returns (identity, moment, evidence event id)."""
+    created = [e for e in events if e["type"] in {"mql_created", "lifecycle_mql"}]
+    if created:
+        e = created[-1]
+        return f"event:{e['event_id']}", e["at"], e["event_id"]
+    if c["stage_entered"]:
+        stamp = c["stage_entered"].strftime("%Y-%m-%dT%H:%M:%SZ")
+        return f"stage_entered:{stamp}", c["stage_entered"], None
+    return None, None, None
+
+
+def _mql_already_tasked(prior: list, moment) -> bool:
+    if moment is None:
+        return False
+    return any(p["play"] in MQL_TASK_PLAYS and p["at"] >= moment for p in prior)
+
+
+def _mql_follow_up(c, events, prior, reasons, evidence, review, result, *, skip_mql_task: bool):
+    """One local sales task per MQL creation. No SLA and no escalation.
+
+    Returns (task or None, moment that later hand-raises must be after).
+    A task already on the ledger is skipped by the caller via skip_mql_task.
+    Sales contact after creation, or a prior task for that creation, does not open another one.
+    Hand-raises at or before that creation are not turned into a second task.
+    """
+    identity, moment, evid = _mql_moment(c, events)
+    tasked = bool(skip_mql_task or _mql_already_tasked(prior, moment))
+    worked = bool(c["last_contacted"] and moment and c["last_contacted"] >= moment)
+    if identity is None:
+        reasons.append("mql_creation_event_missing")
+        review.append("mql_creation_event_missing")
+        r = result("MQL_FOLLOW_UP", "REVIEW")
+        r["task_event_key"] = task_event_key(c["contact_id"], "MQL_FOLLOW_UP", "creation_missing")
+        r["dedupe"] = "event"
+        r["task_owner_source"] = "contact_owner" if c["owner"] else "missing"
+        return _route_check(r), None
+    if not worked and not tasked:
+        reasons.append(f"mql_created:{identity}")
+        if evid:
+            evidence.append(evid)
+        r = result("MQL_FOLLOW_UP")
+        r["task_event_key"] = task_event_key(c["contact_id"], "MQL_FOLLOW_UP", identity)
+        r["dedupe"] = "event"
+        r["task_owner_source"] = "contact_owner" if c["owner"] else "missing"
+        return _route_check(r), None
+    return None, (moment if tasked else None)
+
+
 def _route_check(r: dict) -> dict:
     if not r["route_to"]:
         r["status"] = "REVIEW"
@@ -186,5 +250,6 @@ def _gate(r: dict, c: dict, events: list, prior: list, ds: dict, policy: dict) -
     return r
 
 
-def plan(ds: dict, policy: dict) -> list[dict]:
-    return [choose_play(c, ds, policy) for c in sorted(ds["contacts"].values(), key=lambda x: x["contact_id"])]
+def plan(ds: dict, policy: dict, *, skip_mql_task: bool = False) -> list[dict]:
+    return [choose_play(c, ds, policy, skip_mql_task=skip_mql_task)
+            for c in sorted(ds["contacts"].values(), key=lambda x: x["contact_id"])]

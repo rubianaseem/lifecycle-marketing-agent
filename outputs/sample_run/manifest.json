@@ -1,11 +1,11 @@
 {
-  "run_id": "8efc13122956",
+  "run_id": "3019d79ab3f2",
   "as_of": "2026-11-08T12:00:00Z",
   "exported_at": "2026-11-08T07:30:00Z",
   "age_hours": 4.5,
   "stale": false,
   "mode": "offline",
-  "policy_version": "2026-11-08.1",
+  "policy_version": "2026-11-08.2",
   "agent_version": "1.0.0",
   "summary": {
     "contacts": 34,
@@ -18,7 +18,7 @@
     "by_play_proposed": {
       "CUSTOMER_CHECK_IN": 1,
       "EXPAND": 1,
-      "MQL_SLA_ALERT": 2,
+      "MQL_FOLLOW_UP": 2,
       "NURTURE_EDUCATION": 1,
       "NURTURE_WELCOME": 1,
       "ONBOARD": 1,
@@ -40,47 +40,52 @@
   },
   "artifacts": {
     "play_assignments.csv": {
-      "sha256": "00089e380e9a3d796f7259b6b30f6e889b82532721d69b4a96b554b225ac63d3",
+      "sha256": "f0e5f38b600cda8848a5f1cb278d31cf1963f1130f07c72b2d679cd8a6c6044a",
       "approvable": false,
       "status": "INFORMATIONAL"
     },
     "review_queue.csv": {
-      "sha256": "41c41db290a8fcc33ac9d1261dd2b41b6b68aa0b6f3af8f8ed2637a0c218fa52",
+      "sha256": "f66389043731c6be1ae16539627e9ae032a2fa7d02812a30219b72cd29a45d19",
       "approvable": false,
       "status": "INFORMATIONAL"
     },
     "hubspot_import_proposed.csv": {
-      "sha256": "410fd4c9948389b17624cdebb3cc3fa92903f8616a823dbef5f41e36a2f80987",
+      "sha256": "8e74dfd92605fe3174c0c8103e259b180bccae9895a42de8400f5e54ed43287e",
+      "approvable": true,
+      "status": "PENDING_APPROVAL"
+    },
+    "low_fit_sales_tasks.csv": {
+      "sha256": "cab43657ba7f9d9223a4123dec2017297af444ec65305e5225f5732b6096b4f9",
       "approvable": true,
       "status": "PENDING_APPROVAL"
     },
     "list_criteria.json": {
-      "sha256": "f2ea5eb6b1289e1ee9380351cf6c34ccdd8f354cad877768655641a169de4f35",
+      "sha256": "f3151de11f24c1b1d9a1d274fcd0d7e4c47eb369d51d9e1358b8b425420538e5",
       "approvable": true,
       "status": "PENDING_APPROVAL"
     },
     "list_criteria.md": {
-      "sha256": "bec2e82406c6957fc9193048523ee7bc633d891f1776c25171a23bb971fd3234",
+      "sha256": "2a32e06f9786ffcef2f3900a7b93fb039afb1f37075358e94af31ee3e2be1763",
       "approvable": false,
       "status": "INFORMATIONAL"
     },
     "nurture_drafts.md": {
-      "sha256": "615d4731196bebea734f77c77aadc6ce112cbe10a68779c24f9df4f75f45e5f1",
+      "sha256": "b49962f3b320ca67f6a7aa134aaaa14be8224fe41a0402c61a444cb383aa076e",
       "approvable": true,
       "status": "PENDING_APPROVAL"
     },
     "segment_report.md": {
-      "sha256": "6fdaf409eac04ffe0886444589452518a645dd14e2bd46b3fa163bc487d2eb10",
+      "sha256": "66f8145f9b8b419617989901407eb7e0a711007558875cf8cfd252b8a1cca0f9",
       "approvable": false,
       "status": "INFORMATIONAL"
     },
     "brief.md": {
-      "sha256": "2dbb5e579d83520333b35674d352a06960d9f674db014576f4641b276278070b",
+      "sha256": "afb209e99d7ef90c51cc9fc7b468ddee1d243047f8896af1e0a3daacda712fb2",
       "approvable": false,
       "status": "INFORMATIONAL"
     },
     "decisions.jsonl": {
-      "sha256": "61483c906b95987db8857f8131232a1bf56cf93063eda1d5453f7c33db2d9365",
+      "sha256": "4d5d17fd9a4fa2d78dfccb67501097b7523eb61ec18fb9859598bd70cb0e9825",
       "approvable": false,
       "status": "INFORMATIONAL"
     }

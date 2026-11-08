@@ -20,7 +20,7 @@ IMP = "hubspot_import_proposed.csv"
 
 
 def _a():
-    return {"contact_id": "T1", "play": "MQL_SLA_ALERT", "reason_codes": ["mql_not_contacted_within_48h"], "stage": "marketingqualifiedlead",
+    return {"contact_id": "T1", "play": "MQL_FOLLOW_UP", "reason_codes": ["mql_created:stage_entered:2026-11-02T08:00:00Z"], "stage": "marketingqualifiedlead",
             "fit_tier": "A", "engagement_tier": "warm", "screens": [], "_quarantined_raw": []}
 
 

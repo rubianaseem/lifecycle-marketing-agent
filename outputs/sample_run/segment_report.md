@@ -1,4 +1,4 @@
-# Segment report (run 8efc13122956)
+# Segment report (run 3019d79ab3f2)
 
 As of 2026-11-08T12:00:00Z. Snapshot exported 2026-11-08T07:30:00Z (4.5 hours old, stale: False).
 
@@ -34,7 +34,7 @@ As of 2026-11-08T12:00:00Z. Snapshot exported 2026-11-08T07:30:00Z (4.5 hours ol
 | CUSTOMER_CHECK_IN | 1 | 0 | 0 | 1 | 0 |
 | DATA_REVIEW | 0 | 0 | 0 | 3 | 0 |
 | EXPAND | 1 | 0 | 0 | 0 | 0 |
-| MQL_SLA_ALERT | 2 | 0 | 0 | 0 | 0 |
+| MQL_FOLLOW_UP | 2 | 0 | 0 | 0 | 0 |
 | NURTURE_EDUCATION | 1 | 1 | 2 | 0 | 0 |
 | NURTURE_WELCOME | 1 | 2 | 0 | 0 | 0 |
 | ONBOARD | 1 | 0 | 0 | 0 | 0 |

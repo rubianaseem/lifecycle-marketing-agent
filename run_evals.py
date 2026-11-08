@@ -71,7 +71,7 @@ def main(quiet: bool = False) -> int:
                 inj["baseline"]["in_output_compromised_model"] += 1  # no output validator in the baseline
     s_sys, s_base = score(doc, sys_preds), score(doc, base_preds)
     fails = scenarios()
-    results = {"eval_set": f"evals/cases_v1.json ({doc['version']}, {len(doc['cases'])} cases)",
+    results = {"eval_set": f"evals/cases_v2.json ({doc['version']}, {len(doc['cases'])} cases)",
                "system": s_sys, "baseline": s_base,
                "injection": {"cases": len(inj_cases), **inj},
                "failure_suite": {"passed": sum(f["passed"] for f in fails), "total": len(fails), "scenarios": fails}}

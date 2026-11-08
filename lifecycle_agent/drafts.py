@@ -105,9 +105,9 @@ EVENT_LABEL = {"demo_request": "demo request", "contact_sales": "contact-sales f
 REASON_TEXT = {
     "hand_raise_form": "asked for a demo or a sales call",
     "hand_raise_repeat_pricing_views": "viewed pricing more than once in 14 days",
-    "low_fit_hand_raise": "but fit is low",
-    "open_deal": "has an open deal, so marketing nurture is paused",
-    "mql_not_contacted_within_48h": "became an MQL and has not been contacted within 48 hours",
+    "low_fit_hand_raise": "labelled low fit and held for human review before any sales routing",
+    "open_deal": "has an open deal, so marketing nurture stays off and one sales task is proposed",
+    "mql_created": "became an MQL; one sales follow-up task is proposed for that creation",
     "dormant_customer_route_to_owner": "customer with no meaningful engagement in 90 days",
 }
 

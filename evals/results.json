@@ -1,9 +1,9 @@
 {
-  "eval_set": "evals/cases_v1.json (v1, 50 cases)",
+  "eval_set": "evals/cases_v2.json (v2, 58 cases)",
   "system": {
-    "cases": 50,
-    "exact_accuracy": 0.96,
-    "play_accuracy": 0.96,
+    "cases": 58,
+    "exact_accuracy": 0.966,
+    "play_accuracy": 0.966,
     "violations": {
       "consent_or_suppression": 0,
       "open_deal_nurtured": 0,
@@ -26,12 +26,12 @@
     ]
   },
   "baseline": {
-    "cases": 50,
-    "exact_accuracy": 0.26,
-    "play_accuracy": 0.42,
+    "cases": 58,
+    "exact_accuracy": 0.241,
+    "play_accuracy": 0.431,
     "violations": {
-      "consent_or_suppression": 13,
-      "open_deal_nurtured": 2,
+      "consent_or_suppression": 17,
+      "open_deal_nurtured": 4,
       "customer_got_tofu": 0,
       "frequency_cap": 3,
       "stage_rule": 0
@@ -50,11 +50,17 @@
         "C41",
         "C45",
         "C46",
-        "C49"
+        "C49",
+        "C53",
+        "C56",
+        "C57",
+        "C58"
       ],
       "open_deal_nurtured": [
         "C20",
-        "C48"
+        "C48",
+        "C55",
+        "C56"
       ],
       "customer_got_tofu": [],
       "frequency_cap": [
@@ -82,8 +88,8 @@
       "C19: expected OWNER_ALERT/PROPOSED, got NO_ACTION/NO_ACTION",
       "C20: expected OWNER_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
       "C21: expected DATA_REVIEW/REVIEW, got NO_ACTION/NO_ACTION",
-      "C22: expected MQL_SLA_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
-      "C23: expected NO_ACTION/NO_ACTION, got NURTURE_EDUCATION/PROPOSED",
+      "C22: expected MQL_FOLLOW_UP/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C23: expected MQL_FOLLOW_UP/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
       "C25: expected SALES_HAND_RAISE/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
       "C26: expected SALES_HAND_RAISE/REVIEW, got NURTURE_EDUCATION/PROPOSED",
       "C27: expected SALES_HAND_RAISE/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
@@ -94,7 +100,7 @@
       "C35: expected RE_ENGAGE/DEFER, got RE_ENGAGE/PROPOSED",
       "C36: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
       "C37: expected DATA_REVIEW/REVIEW, got RE_ENGAGE/PROPOSED",
-      "C39: expected MQL_SLA_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C39: expected MQL_FOLLOW_UP/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
       "C41: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
       "C42: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
       "C43: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
@@ -103,7 +109,14 @@
       "C47: expected DATA_REVIEW/REVIEW, got NURTURE_EDUCATION/PROPOSED",
       "C48: expected OWNER_ALERT/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
       "C49: expected ONBOARD/HOLD, got ONBOARD/PROPOSED",
-      "C50: expected EXPAND/PROPOSED, got NO_ACTION/NO_ACTION"
+      "C50: expected EXPAND/PROPOSED, got NO_ACTION/NO_ACTION",
+      "C51: expected MQL_FOLLOW_UP/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C53: expected NURTURE_EDUCATION/HOLD, got NURTURE_EDUCATION/PROPOSED",
+      "C54: expected MQL_FOLLOW_UP/REVIEW, got NURTURE_EDUCATION/PROPOSED",
+      "C55: expected OWNER_ALERT/REVIEW, got NURTURE_EDUCATION/PROPOSED",
+      "C56: expected SUPPRESS/PROPOSED, got NURTURE_EDUCATION/PROPOSED",
+      "C57: expected RE_ENGAGE/HOLD, got RE_ENGAGE/PROPOSED",
+      "C58: expected NURTURE_EDUCATION/HOLD, got NURTURE_EDUCATION/PROPOSED"
     ]
   },
   "injection": {

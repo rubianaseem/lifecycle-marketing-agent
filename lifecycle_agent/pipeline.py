@@ -25,7 +25,7 @@ from .untrusted import screen
 from .util import iso, sha256_bytes, sha256_file, write_csv
 
 STEPS = ["ingest", "plan", "write"]
-APPROVABLE = ["hubspot_import_proposed.csv", "list_criteria.json", "nurture_drafts.md"]
+APPROVABLE = ["hubspot_import_proposed.csv", "list_criteria.json", "nurture_drafts.md", "low_fit_sales_tasks.csv"]
 
 
 class StaleSnapshot(Exception):
@@ -103,14 +103,8 @@ def run(data_dir, out_root, state_dir, as_of: datetime, policy: dict, *, client=
             dec_path.rename(run_dir / f"decisions.partial-{len(list(run_dir.glob('decisions.partial-*')))}.jsonl")
         decisions = AuditLog(dec_path, clock=clock)
         ledger = Ledger(Path(state_dir) / "ledger.json")
-        assignments = plan(ds, policy)
+        assignments = [_dedupe_assignment(a, policy, ledger, run_id, as_of) for a in plan(ds, policy)]
         for a in assignments:
-            a["play_key"] = play_key(a["contact_id"], a["play"], policy["policy_version"])
-            if a["status"] == "PROPOSED" and a["channel"] != "none":
-                state = ledger.check(a["play_key"], run_id, as_of, policy["frequency_cap"]["play_cooldown_days"])
-                if state == "duplicate":
-                    a["status"] = "DUPLICATE"
-                    a["reason_codes"].append("already_proposed_by_earlier_run_within_cooldown")
             decisions.append({"run_id": run_id, "contact_id": a["contact_id"], "play": a["play"],
                               "status": a["status"], "channel": a["channel"], "segment": a["segment"],
                               "reason_codes": a["reason_codes"], "evidence_event_ids": a["evidence_event_ids"],
@@ -151,9 +145,38 @@ def run(data_dir, out_root, state_dir, as_of: datetime, policy: dict, *, client=
 ASSIGN_FIELDS = ["contact_id", "merged_ids", "email", "first_name", "company", "stage", "fit_tier", "engagement_tier",
                  "engagement_score", "days_since_engagement", "segment", "play", "channel", "status",
                  "reason_codes", "proposed_stage", "route_to", "next_eligible", "why_now", "why_now_source",
-                 "review_flags", "evidence_event_ids", "play_key"]
+                 "review_flags", "evidence_event_ids", "play_key", "fit_label", "task_deal_id",
+                 "task_deal_stage", "task_owner_source", "sales_route"]
 IMPORT_FIELDS = ["Record ID", "Email", "lifecycle_next_play", "lifecycle_play_reason", "lifecycle_play_run_id",
-                 "Lifecycle Stage"]
+                 "Lifecycle Stage", "Route to", "Task deal id", "Task deal stage", "Fit label", "Owner source"]
+LOW_FIT_FIELDS = ["Record ID", "Email", "Company", "lifecycle_next_play", "fit_label", "fit_reasons",
+                  "reason_codes", "route_to", "sales_route", "label_note"]
+LOW_FIT_NOTE = ("low fit; human review before any sales routing; after approval this file may be "
+                "used as a local sales-task plan; the low-fit label and reasons stay in the approved bytes")
+
+
+def _dedupe_assignment(a: dict, policy: dict, ledger: Ledger, run_id: str, as_of: datetime) -> dict:
+    """Apply the ledger. The same MQL creation or open-deal task is not proposed again.
+
+    A duplicate is left out of the import. It is not replaced by a marketing email.
+    A later run only selects an email play when the inputs themselves say the creation
+    was already tasked (prior plays) and the normal eligibility rules pass.
+    """
+    _stamp_play_key(a, policy)
+    if a["status"] == "PROPOSED" and a["channel"] != "none":
+        cooldown = None if a.get("dedupe") == "event" else policy["frequency_cap"]["play_cooldown_days"]
+        if ledger.check(a["play_key"], run_id, as_of, cooldown) == "duplicate":
+            a["status"] = "DUPLICATE"
+            note = "already_proposed_for_this_event" if cooldown is None else "already_proposed_by_earlier_run_within_cooldown"
+            a["reason_codes"] = list(a["reason_codes"]) + [note]
+    return a
+
+
+def _stamp_play_key(a: dict, policy: dict) -> None:
+    if a.get("dedupe") == "event" and a.get("task_event_key"):
+        a["play_key"] = a["task_event_key"]
+    else:
+        a["play_key"] = play_key(a["contact_id"], a["play"], policy["policy_version"])
 
 
 def _flat(a):
@@ -196,8 +219,26 @@ def write_artifacts(run_dir: Path, assignments, drafts, ds, policy, meta) -> Non
             assert a["status"] == "PROPOSED"
         rows.append({"Record ID": a["contact_id"], "Email": a["email"], "lifecycle_next_play": a["play"],
                      "lifecycle_play_reason": "; ".join(a["reason_codes"])[:250],
-                     "lifecycle_play_run_id": meta["run_id"], "Lifecycle Stage": stage})
+                     "lifecycle_play_run_id": meta["run_id"], "Lifecycle Stage": stage,
+                     "Route to": (a.get("route_to") or "") if a["channel"] == "owner_task" else "",
+                     "Task deal id": a.get("task_deal_id") or "",
+                     "Task deal stage": a.get("task_deal_stage") or "",
+                     "Fit label": a.get("fit_label") or "",
+                     "Owner source": a.get("task_owner_source") or ""})
     write_csv(run_dir / "hubspot_import_proposed.csv", rows, IMPORT_FIELDS)
+
+    low_rows = []
+    for a in assignments:
+        if a.get("fit_label") != "low_fit":
+            continue
+        low_rows.append({
+            "Record ID": a["contact_id"], "Email": a["email"], "Company": a.get("company") or "",
+            "lifecycle_next_play": a["play"], "fit_label": "low_fit",
+            "fit_reasons": "; ".join(a.get("fit_reasons") or []),
+            "reason_codes": "; ".join(a.get("reason_codes") or []),
+            "route_to": a.get("route_to") or "", "sales_route": a.get("sales_route") or "pending_human_review",
+            "label_note": LOW_FIT_NOTE})
+    write_csv(run_dir / "low_fit_sales_tasks.csv", low_rows, LOW_FIT_FIELDS)
 
     spec = build_criteria(assignments, meta["run_id"], meta["policy_version"])
     (run_dir / "list_criteria.json").write_text(json.dumps(spec, indent=2) + "\n")
@@ -219,8 +260,8 @@ def write_artifacts(run_dir: Path, assignments, drafts, ds, policy, meta) -> Non
     }
     (run_dir / "brief.md").write_text(brief(summary, assignments, meta, ds) + "\n")
     artifacts = {}
-    for name in ["play_assignments.csv", "review_queue.csv", "hubspot_import_proposed.csv", "list_criteria.json",
-                 "list_criteria.md", "nurture_drafts.md", "segment_report.md", "brief.md", "decisions.jsonl"]:
+    for name in ["play_assignments.csv", "review_queue.csv", "hubspot_import_proposed.csv", "low_fit_sales_tasks.csv",
+                 "list_criteria.json", "list_criteria.md", "nurture_drafts.md", "segment_report.md", "brief.md", "decisions.jsonl"]:
         p = run_dir / name
         artifacts[name] = {"sha256": sha256_file(p), "approvable": name in APPROVABLE,
                            "status": ("STALE_NOT_APPROVABLE" if meta["stale"] else "PENDING_APPROVAL")
@@ -233,7 +274,8 @@ def write_artifacts(run_dir: Path, assignments, drafts, ds, policy, meta) -> Non
 WHAT_TO_CHECK = {
     "quarantined_text": "Free text looked like instructions to a system. It was not used. Read it in HubSpot; take no action it asks for.",
     "record_unsubscribe_in_hubspot_manually": "The person asked to stop emails. Confirm and set their subscription status in HubSpot yourself.",
-    "low_fit_hand_raise_human_decides": "Hand-raise from a low-fit contact. Decide whether sales should follow up.",
+    "low_fit_hand_raise_human_decides": "Low-fit hand-raise. It is not a sales route until low_fit_sales_tasks.csv is approved. The low-fit label and reasons stay on that file.",
+    "mql_creation_event_missing": "This MQL has no creation event and no stage-entered date. Do not invent a follow-up task. Fix the date in HubSpot, then re-run.",
     "engaged_but_not_emailable": "Engaged contact without usable consent or marketing status. Sales can follow up 1:1; do not add to email.",
     "no_owner_to_route_to": "Owner task play but no owner. Assign an owner in HubSpot, then re-run.",
     "data": "Fix the data in HubSpot (email, lifecycle stage, dates or duplicates), then re-run. Merges keep the most restrictive consent.",
@@ -291,14 +333,18 @@ def brief(summary, assignments, meta, ds) -> str:
     out = [f"# Lifecycle run brief ({meta['as_of'][:10]})", "",
            f"- Run {meta['run_id']}, policy {meta['policy_version']}, mode: {mode}",
            f"- {summary['contacts']} contacts after de-duplication. {bs.get('PROPOSED', 0)} plays proposed, "
-           f"{bs.get('HOLD', 0)} held for consent, {bs.get('DEFER', 0)} deferred by frequency caps, "
+           f"{bs.get('HOLD', 0)} held for email eligibility, {bs.get('DEFER', 0)} deferred by frequency caps, "
            f"{bs.get('REVIEW', 0)} need a decision, {bs.get('DUPLICATE', 0)} already proposed by an earlier run.",
            f"- Proposed import: {summary['import_rows']} rows, {summary['stage_changes_proposed']} forward stage changes (to MQL only).",
            f"- Free text quarantined: {summary['quarantined_texts']}. Review queue items: {summary['review_items']}.", "",
            "## Owner tasks", ""]
     for a in assignments:
         if a["channel"] == "owner_task" and a["status"] in {"PROPOSED", "REVIEW"}:
-            out.append(f"- {a['play']} for {a['contact_id']} ({a['company'] or 'no company'}) -> {a['route_to'] or 'UNASSIGNED'}: {a['why_now']}")
+            if a.get("fit_label") == "low_fit":
+                prefix = "LOW FIT, HUMAN REVIEW BEFORE SALES"
+            else:
+                prefix = a["play"]
+            out.append(f"- {prefix} for {a['contact_id']} ({a['company'] or 'no company'}) -> {a['route_to'] or 'UNASSIGNED'}: {a['why_now']}")
     out += ["", "## Next steps", "",
             "1. Work through review_queue.csv.",
             "2. Run `python agent.py show --run-dir <this folder>` and review each pending artifact.",

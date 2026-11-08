@@ -1,6 +1,6 @@
 {
-  "run_id": "8efc13122956",
-  "policy_version": "2026-11-08.1",
+  "run_id": "3019d79ab3f2",
+  "policy_version": "2026-11-08.2",
   "custom_properties_needed": [
     {
       "name": "lifecycle_next_play",
@@ -8,7 +8,7 @@
       "options": [
         "CUSTOMER_CHECK_IN",
         "EXPAND",
-        "MQL_SLA_ALERT",
+        "MQL_FOLLOW_UP",
         "NURTURE_EDUCATION",
         "NURTURE_WELCOME",
         "ONBOARD",
@@ -45,7 +45,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         },
         {
           "property": "lifecyclestage",
@@ -103,7 +103,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         },
         {
           "property": "lifecyclestage",
@@ -162,7 +162,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         },
         {
           "property": "lifecyclestage",
@@ -222,7 +222,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         },
         {
           "property": "lifecyclestage",
@@ -273,7 +273,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         },
         {
           "property": "lifecyclestage",
@@ -325,7 +325,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         }
       ],
       "how_to_use": "Static exclusion list 'Lifecycle agent - suppress'. Use it as an exclusion on every marketing send."
@@ -345,7 +345,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         }
       ],
       "how_to_use": "Review, then add to the suppress list or set as non-marketing contacts. Do not email."
@@ -365,13 +365,13 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         }
       ],
-      "how_to_use": "Workflow: when lifecycle_next_play becomes OWNER_ALERT, create a task for the deal owner. No marketing email."
+      "how_to_use": "One sales task for the open deal, carrying the deal id, stage and resolved owner. No marketing email. Do not create another task for the same open deal and owner."
     },
     {
-      "name": "Lifecycle agent - Mql Sla Alert",
+      "name": "Lifecycle agent - Mql Follow Up",
       "type": "active",
       "object": "contact",
       "expected_members": 2,
@@ -380,12 +380,12 @@
         {
           "property": "lifecycle_next_play",
           "operator": "is",
-          "value": "MQL_SLA_ALERT"
+          "value": "MQL_FOLLOW_UP"
         },
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         },
         {
           "property": "lifecyclestage",
@@ -395,7 +395,7 @@
           ]
         }
       ],
-      "how_to_use": "Workflow: create an SDR task and notify the contact owner."
+      "how_to_use": "One sales follow-up task for the contact owner when an MQL is created. No SLA and no automatic escalation. Do not send marketing email because this task exists."
     },
     {
       "name": "Lifecycle agent - Sales Hand Raise",
@@ -412,7 +412,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         }
       ],
       "how_to_use": "Workflow: create an owner task. The import also moves Lifecycle Stage forward to MQL where allowed."
@@ -432,7 +432,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         },
         {
           "property": "lifecyclestage",
@@ -459,7 +459,7 @@
         {
           "property": "lifecycle_play_run_id",
           "operator": "is",
-          "value": "8efc13122956"
+          "value": "3019d79ab3f2"
         },
         {
           "property": "lifecyclestage",

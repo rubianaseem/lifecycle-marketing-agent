@@ -59,7 +59,7 @@ def main() -> int:
     res = run(ROOT, out, state, AS_OF, policy)
     rd = Path(res["run_dir"])
     s = res["summary"]
-    say(f"  contacts {s['contacts']} | proposed {s['by_status'].get('PROPOSED', 0)} | held for consent {s['email_plays_blocked_by_consent']}"
+    say(f"  contacts {s['contacts']} | proposed {s['by_status'].get('PROPOSED', 0)} | held for eligibility {s['email_plays_blocked_by_consent']}"
         f" | deferred by caps {s['deferred_by_frequency_cap']} | review {s['by_status'].get('REVIEW', 0)}"
         f" | quarantined text {s['quarantined_texts']} | import rows {s['import_rows']}")
     say("  plays proposed: " + ", ".join(f"{k} {v}" for k, v in s["by_play_proposed"].items()))

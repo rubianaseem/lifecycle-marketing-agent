@@ -1,6 +1,6 @@
 1. Run on the sample snapshot (offline rules and templates, as of 2026-11-08 12:00 UTC)
-  contacts 34 | proposed 24 | held for consent 3 | deferred by caps 2 | review 5 | quarantined text 2 | import rows 24
-  plays proposed: CUSTOMER_CHECK_IN 1, EXPAND 1, MQL_SLA_ALERT 2, NURTURE_EDUCATION 1, NURTURE_WELCOME 1, ONBOARD 1, OWNER_ALERT 2, RE_ENGAGE 2, SALES_HAND_RAISE 3, SQL_ASSIST 1, SUNSET 1, SUPPRESS 8
+  contacts 34 | proposed 24 | held for eligibility 3 | deferred by caps 2 | review 5 | quarantined text 2 | import rows 24
+  plays proposed: CUSTOMER_CHECK_IN 1, EXPAND 1, MQL_FOLLOW_UP 2, NURTURE_EDUCATION 1, NURTURE_WELCOME 1, ONBOARD 1, OWNER_ALERT 2, RE_ENGAGE 2, SALES_HAND_RAISE 3, SQL_ASSIST 1, SUNSET 1, SUPPRESS 8
 
 2. Approval gate (SIMULATED approvals on synthetic data)
   release import before any approval                   REFUSED  hubspot_import_proposed.csv has not been approved

@@ -20,7 +20,7 @@ flowchart TD
     B --> U[untrusted screen: notes and form text]
     U -- opt-out --> E
     U -- injection --> Q[quarantine -> review queue]
-    D --> E[hard controls: suppression, consent, open deal, caps, MQL SLA, stage rules]
+    D --> E[hard controls: suppression, eligibility, open deal, caps, stage rules]
     E --> F[choose one play per contact + reason codes]
     F --> L[ledger: drop plays already proposed in cooldown]
     L --> T[(decisions.jsonl hash-chained)]
@@ -45,12 +45,12 @@ Steps checkpoint to `state/runs/<run_id>/`. `run_id` = SHA-256 of the input file
 |---|---|---|---|
 | 1 | Invalid email, blank or custom lifecycle value | DATA_REVIEW | review |
 | 2 | Suppression list or domain, unsubscribed, bounced, consent withdrawn, opt-out in free text, internal or competitor domain | SUPPRESS | list |
-| 3 | Any open deal | OWNER_ALERT (deal owner) | owner task |
+| 3 | Any open deal | OWNER_ALERT, one task for that deal set and owner. Deal id, stage and owner are on the task. Marketing email stays off | owner task |
 | 4 | Opportunity stage without open deal | DATA_REVIEW | review |
 | 5 | Customer: new (60 days), usage limit or engaged A-fit, dormant, else nothing | ONBOARD, EXPAND, CUSTOMER_CHECK_IN, NO_ACTION | email / owner |
 | 6 | SQL 30+ days, no meeting | SQL_ASSIST | owner task |
-| 7 | MQL past 48h and not contacted / inside 48h | MQL_SLA_ALERT / NO_ACTION | owner task |
-| 8 | Demo or contact-sales form, or 2 pricing views in 14 days | SALES_HAND_RAISE (REVIEW if fit C), stage to MQL if forward | owner task |
+| 7 | MQL creation not already tasked and not contacted since that creation | MQL_FOLLOW_UP. One task per creation event. No SLA and no escalation. Missing owner is review | owner task |
+| 8 | Demo or contact-sales form, or 2 pricing views in 14 days. Events at or before an MQL creation that was already tasked do not open a second task | SALES_HAND_RAISE. Fit C is REVIEW and is left out of the import until `low_fit_sales_tasks.csv` is approved. Stage moves to MQL only when the route is proposed | owner task |
 | 9 | Re-engagement 30+ days ago, no engagement since | SUNSET | list |
 | 10 | No meaningful engagement for 90 days | RE_ENGAGE | email |
 | 11 | Created in last 30 days | NURTURE_WELCOME | email |
@@ -64,7 +64,8 @@ Inputs are described in [SETUP.md](../SETUP.md). Outputs per run:
 
 | File | Contents | Approvable |
 |---|---|---|
-| `hubspot_import_proposed.csv` | Record ID, Email, lifecycle_next_play, lifecycle_play_reason, lifecycle_play_run_id, Lifecycle Stage (blank or `marketingqualifiedlead`). PROPOSED rows only | yes |
+| `hubspot_import_proposed.csv` | Record ID, Email, lifecycle_next_play, lifecycle_play_reason, lifecycle_play_run_id, Lifecycle Stage (blank or `marketingqualifiedlead`), plus route, deal id, deal stage, fit label and owner source for owner tasks. PROPOSED rows only. Low-fit rows are excluded | yes |
+| `low_fit_sales_tasks.csv` | Low-fit hand-raises labelled `low_fit`, with reasons. Not a sales route until this exact file is approved. The label is part of the hash | yes |
 | `list_criteria.json` / `.md` | Custom properties needed and one segment per play with filters; email segments include consent and suppression filters | yes (json) |
 | `nurture_drafts.md` | Two template variants per email play (plus a validated Claude variant in Claude mode), unsubscribe placeholder | yes |
 | `play_assignments.csv` | Every contact: segment, play, status (PROPOSED, HOLD, DEFER, REVIEW, DUPLICATE, NO_ACTION), reason codes, evidence, route, why-now | no |

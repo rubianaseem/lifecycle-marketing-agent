@@ -13,8 +13,9 @@ ROOT = Path(__file__).resolve().parent
 TOFU = {"NURTURE_WELCOME", "NURTURE_EDUCATION", "RE_ENGAGE"}
 
 
-def load_cases(path=ROOT / "cases_v1.json") -> dict:
-    return json.loads(Path(path).read_text())
+def load_cases(path=None) -> dict:
+    path = Path(path) if path else ROOT / "cases_v2.json"
+    return json.loads(path.read_text())
 
 
 def case_dataset(doc: dict, case: dict) -> dict:

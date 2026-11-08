@@ -10,8 +10,9 @@ from tests.helpers import ROOT
 class EvalTests(unittest.TestCase):
     def test_eval_set_versioned_and_labelled(self):
         doc = load_cases()
-        self.assertEqual(doc["version"], "v1")
-        self.assertGreaterEqual(len(doc["cases"]), 50)
+        self.assertEqual(doc["version"], "v2")
+        self.assertGreaterEqual(len(doc["cases"]), 58)
+        self.assertTrue((ROOT / "evals/cases_v1.json").exists())
         self.assertEqual(len({c["id"] for c in doc["cases"]}), len(doc["cases"]))
 
     def test_run_evals_zero_hard_violations(self):
